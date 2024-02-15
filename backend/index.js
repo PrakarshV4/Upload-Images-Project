@@ -71,20 +71,28 @@ app.post('/login',async function(req,res){
 })
 
 ///UPLOAD IMAGES
-app.post('/upload',userMiddleware,upload.single('file'),(req,res)=>{
-    user.create({image: req.file.filename})
-    .then(function(result){
-        console.log('The result is' + result.image);
-        res.json(result.image);
-    })
-    .catch(err => console.log(err))
+app.post('/upload',userMiddleware,upload.single('file'),async (req,res)=>{
+    const email =req.email;
+    console.log(`email = ${email}`);
+    const findUser = await user.findOne({email: email});
+    // user.update({email},{image: req.file.filename})
+    // .then(function(result){
+    //     console.log('The result is' + result.image);
+    //     res.json(result.image);
+    // })
+    // .catch(err => console.log(err))
+    findUser.image.push(req.file.filename);
+    await findUser.save({
+        validateBeforeSave: false,
+    });
+    res.json(findUser);
 })
 
 ////////GET IMAGES
 app.get('/getImage',userMiddleware,(req,res)=>{
     user.find()
     .then(users => {
-        res.json(users)
+        res.json(users.image)
     })
     .catch(err => res.json(err))
 })

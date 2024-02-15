@@ -1,12 +1,11 @@
-import { useEffect,useState } from "react"
+import { useEffect,useState,useRef } from "react"
 import axios from "axios"
 import { Button, Card} from 'react-bootstrap';
 import '../App.css'
 
 export default function UploadComp(){
     const [file,setFile] = useState();
-    const [image,setImage] = useState();
-
+    const [image,setImage] = useState([]);
       
     const handleUpload = (e)=>{
         const token = localStorage.getItem('token');
@@ -23,8 +22,8 @@ export default function UploadComp(){
             }
         )
         .then((res)=>{
-            console.log(res.data);
-            setImage(res.data);
+            console.log("resdataimage = "+res.data.image);
+            setImage(res.data.image);
         })
         .catch((err)=>{
             console.log(err)
@@ -33,12 +32,11 @@ export default function UploadComp(){
     useEffect(()=>{
             axios.get('http://localhost:3000/getImage')
             .then((res)=>{
-                console.log(image)
                 console.log(res);
             })
             .catch((err)=>{console.log(err)})
     },[])
-
+    const keys = useRef(1);
     return (
         <div>
             <div>
@@ -53,7 +51,12 @@ export default function UploadComp(){
             </div>
             <div>
             <h2>Uploaded Image</h2><br />
-                <img style={{ maxWidth: '50%', maxHeight: '100%', width: 'auto', height: 'auto' }} src={`http://localhost:3000/Images/`+image} alt="" />
+                {image.map((photo) =>{
+                    keys.current += 1;
+                    return (
+                        <img key={keys.current} style={{ maxWidth: '50%', maxHeight: '100%', width: 'auto', height: 'auto' }} src={`http://localhost:3000/Images/`+photo} alt="" />
+                    )
+                })}
             </div>
         </div>
     )
